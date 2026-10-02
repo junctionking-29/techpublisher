@@ -177,7 +177,9 @@ export default function AdminPage() {
       status: formState.status || 'published',
     };
 
-    if (editingArticle === 'new') {
+    const isNewArticle = editingArticle === 'new' || !editingArticle?.id;
+
+    if (isNewArticle) {
       const { error } = await supabase.from('articles').insert([payload]);
       if (error) {
         showAlert('error', `Failed to create article: ${error.message}`);
@@ -233,16 +235,15 @@ export default function AdminPage() {
   const handleSaveCode = async (e, formState) => {
     e.preventDefault();
     const normalizedCode = formState.code.trim().toUpperCase();
-    const targetUrl = formState.target_url.trim();
+    let targetUrl = formState.target_url.trim();
 
     if (!normalizedCode) {
       showAlert('error', 'Code is required.');
       return;
     }
 
-    if (!targetUrl.startsWith('https://')) {
-      showAlert('error', 'Target URL must start with https:// for visitor security.');
-      return;
+    if (!targetUrl.startsWith('https://') && !targetUrl.startsWith('http://')) {
+      targetUrl = 'https://' + targetUrl;
     }
 
     let parsedWait = null;
@@ -261,7 +262,9 @@ export default function AdminPage() {
       wait_seconds: parsedWait,
     };
 
-    if (editingCode === 'new') {
+    const isNewCode = editingCode === 'new' || !editingCode?.code;
+
+    if (isNewCode) {
       const { error } = await supabase.from('codes').insert([payload]);
       if (error) {
         showAlert('error', `Failed to create code: ${error.message}`);
