@@ -1,13 +1,35 @@
 import { execSync } from 'child_process';
 import crypto from 'crypto';
+import { getServiceSupabase } from '../lib/supabaseServer.js';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
+const DB_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
 
-function runPsql(sql) {
-  return execSync(`psql "${DB_URL}" -c "${sql.replace(/"/g, '\\"')}"`, {
-    encoding: 'utf8',
-  });
+async function setupCodes(testCode, targetUrl, badSchemeCode, badSchemeUrl) {
+  try {
+    const supabase = getServiceSupabase();
+    await supabase.from('codes').delete().in('code', [testCode, badSchemeCode]);
+    await supabase.from('codes').insert([
+      { code: testCode, target_url: targetUrl, active: true, wait_seconds: 2 },
+      { code: badSchemeCode, target_url: badSchemeUrl, active: true, wait_seconds: 0 },
+    ]);
+  } catch (err) {
+    // Fallback to psql for local docker if service role env not loaded
+    execSync(`psql "${DB_URL}" -c "
+      DELETE FROM codes WHERE code IN ('${testCode}', '${badSchemeCode}');
+      INSERT INTO codes (code, target_url, active, wait_seconds) VALUES ('${testCode}', '${targetUrl}', true, 2);
+      INSERT INTO codes (code, target_url, active, wait_seconds) VALUES ('${badSchemeCode}', '${badSchemeUrl}', true, 0);
+    "`);
+  }
+}
+
+async function cleanupCodes(testCode, badSchemeCode) {
+  try {
+    const supabase = getServiceSupabase();
+    await supabase.from('codes').delete().in('code', [testCode, badSchemeCode]);
+  } catch (err) {
+    execSync(`psql "${DB_URL}" -c "DELETE FROM codes WHERE code IN ('${testCode}', '${badSchemeCode}');"`);
+  }
 }
 
 async function runTests() {
@@ -20,13 +42,9 @@ async function runTests() {
   const badSchemeUrl = 'javascript:alert(1)';
 
   try {
-    // 0. Setup test codes in local database
-    console.log('\n[Setup] Inserting temporary test codes into local database...');
-    runPsql(`
-      DELETE FROM codes WHERE code IN ('${testCode}', '${badSchemeCode}');
-      INSERT INTO codes (code, target_url, active, wait_seconds) VALUES ('${testCode}', '${targetUrl}', true, 2);
-      INSERT INTO codes (code, target_url, active, wait_seconds) VALUES ('${badSchemeCode}', '${badSchemeUrl}', true, 0);
-    `);
+    // 0. Setup test codes in database
+    console.log('\n[Setup] Inserting temporary test codes into database...');
+    await setupCodes(testCode, targetUrl, badSchemeCode, badSchemeUrl);
 
     // 1. Wrong code returns 404
     console.log('\n[Test 1] Testing wrong code returns 404...');
@@ -187,8 +205,8 @@ async function runTests() {
     console.log('\nALL 8 REDEEM FLOW TESTS PASSED!');
   } finally {
     // Cleanup test codes
-    console.log('\n[Cleanup] Removing temporary test codes from local database...');
-    runPsql(`DELETE FROM codes WHERE code IN ('${testCode}', '${badSchemeCode}');`);
+    console.log('\n[Cleanup] Removing temporary test codes from database...');
+    await cleanupCodes(testCode, badSchemeCode);
     console.log('Cleanup complete.');
   }
 }

@@ -23,8 +23,14 @@ export default async function sitemap() {
   }));
 
   // Published articles
-  const articles = await fetchPublishedArticles();
-  const articlePages = articles.map((article) => ({
+  let articles = [];
+  try {
+    articles = await fetchPublishedArticles();
+  } catch (err) {
+    console.warn('Warning: Articles could not be loaded for sitemap, generating static routes only:', err.message);
+  }
+
+  const articlePages = (articles || []).map((article) => ({
     url: `${siteUrl}/articles/${article.slug}`,
     lastModified: new Date(article.updated_at || article.published_at || now),
     changeFrequency: 'monthly',

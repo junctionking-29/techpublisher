@@ -4,11 +4,10 @@ process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://wrong-nonexistent-project.supaba
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'invalid-anon-key';
 process.env.ALLOW_FALLBACK_DATA = 'false';
 
-import { fetchPublishedArticles } from '../lib/supabaseServer.js';
-
 console.log('Testing fallback policy with NODE_ENV=production and invalid Supabase URL...');
 
 try {
+  const { fetchPublishedArticles } = await import('../lib/supabaseServer.js');
   const articles = await fetchPublishedArticles();
   console.error('FAIL: Expected fetchPublishedArticles to throw in production, but got:', articles);
   process.exit(1);
