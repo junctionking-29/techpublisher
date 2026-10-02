@@ -18,7 +18,7 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
   }, []);
 
   const handleInputChange = (e) => {
-    // Auto-uppercase typed input
+    // Auto-uppercase input value
     setCode(e.target.value.toUpperCase());
     if (status === 'error') {
       setStatus('idle');
@@ -138,8 +138,8 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
         border: '4px solid #dc2626',
         borderRadius: '16px',
         padding: '2.5rem 2.75rem',
-        maxWidth: '720px',
-        boxShadow: '0 8px 32px rgba(220, 38, 38, 0.18)',
+        maxWidth: '740px',
+        boxShadow: '0 10px 35px rgba(220, 38, 38, 0.2), 0 2px 6px rgba(0, 0, 0, 0.06)',
         backgroundColor: '#ffffff',
         margin: '3rem auto',
         textAlign: 'left',
@@ -153,7 +153,7 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
           display: 'block',
           fontFamily: 'var(--font-sans)',
           fontWeight: 700,
-          fontSize: '1.2rem',
+          fontSize: '1.25rem',
           color: '#10151c',
           marginBottom: '1rem',
           letterSpacing: '-0.01em',
@@ -169,7 +169,7 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
           value={code}
           onChange={handleInputChange}
           onPaste={handlePaste}
-          placeholder="e.g. CODE123"
+          placeholder="e.g. TECH26"
           maxLength={50}
           autoComplete="off"
           autoCorrect="off"
@@ -198,14 +198,14 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
           className="code-box-button"
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '1.1rem',
+            fontSize: '1.15rem',
             fontWeight: 700,
             color: '#ffffff',
             backgroundColor: '#dc2626',
             border: 'none',
             borderRadius: '8px',
-            padding: '0.85rem 2rem',
-            cursor: status === 'loading' || status === 'countdown' || status === 'finishing' ? 'not-allowed' : 'pointer',
+            padding: '0.85rem 2.25rem',
+            cursor: status === 'loading' || status === 'countdown' || status === 'finishing' || !code.trim() ? 'not-allowed' : 'pointer',
             opacity: status === 'loading' || status === 'countdown' || status === 'finishing' || !code.trim() ? 0.65 : 1,
             transition: 'background-color 0.15s ease',
             whiteSpace: 'nowrap',
@@ -242,7 +242,7 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
             style={{
               width: '18px',
               height: '18px',
-              border: '2px solid #dc2626',
+              border: '2.5px solid #dc2626',
               borderTopColor: 'transparent',
               borderRadius: '50%',
               display: 'inline-block',
@@ -276,7 +276,7 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
             style={{
               width: '18px',
               height: '18px',
-              border: '2px solid #dc2626',
+              border: '2.5px solid #dc2626',
               borderTopColor: 'transparent',
               borderRadius: '50%',
             }}
@@ -312,7 +312,7 @@ export default function CodeBox({ id = 'redeem-code-box' }) {
             borderRadius: '8px',
             backgroundColor: '#ffebe9',
             color: '#cf222e',
-            border: '1px solid #ff8182',
+            border: '1.5px solid #ff8182',
             fontWeight: 600,
           }}
         >

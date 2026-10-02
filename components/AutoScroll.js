@@ -4,80 +4,71 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Smoothly auto-scrolls down to the article's code box over `scrollSeconds` seconds.
- * Starts after 1 second delay.
- * Stops permanently on explicit user scrolling:
- *   - 'wheel' (mouse wheel / trackpad scroll)
- *   - 'touchmove' (finger dragging / swiping)
- *   - 'keydown' (arrow keys, page up/down, spacebar)
+ * Stops permanently on any user interaction (wheel, touchstart, keydown, mousedown).
  * Respects prefers-reduced-motion.
  */
 export default function AutoScroll({ scrollSeconds = 40, targetId = 'article-code-box' }) {
   const stoppedRef = useRef(false);
   const rafIdRef = useRef(null);
   const timeoutIdRef = useRef(null);
-  const listenersAttachedRef = useRef(false);
 
   useEffect(() => {
-    // 1. Duration check
-    const durationSec = Number(scrollSeconds);
-    if (!durationSec || durationSec <= 0) {
+    // 1. If scroll_seconds is 0, disable auto-scroll
+    if (!scrollSeconds || scrollSeconds <= 0) {
       return;
     }
 
-    // 2. Skip if user prefers reduced motion
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // 2. Skip entirely if user prefers reduced motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
       return;
     }
 
-    // Explicit user scroll events that indicate intentional takeover
-    const userScrollEvents = ['wheel', 'touchmove', 'keydown'];
-
+    // Stop handler: terminates auto-scroll permanently for this page view
     const stopScroll = () => {
-      if (stoppedRef.current) return;
       stoppedRef.current = true;
       if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       detachListeners();
     };
 
+    const userEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+
+    let isScrollingStarted = false;
+
     const attachListeners = () => {
-      if (listenersAttachedRef.current) return;
-      listenersAttachedRef.current = true;
-      userScrollEvents.forEach((event) => {
+      userEvents.forEach((event) => {
         window.addEventListener(event, stopScroll, { passive: true });
       });
     };
 
     const detachListeners = () => {
-      if (!listenersAttachedRef.current) return;
-      listenersAttachedRef.current = false;
-      userScrollEvents.forEach((event) => {
+      userEvents.forEach((event) => {
         window.removeEventListener(event, stopScroll);
       });
     };
 
-    // 3. Start auto-scroll after 1 second delay
+    // 3. Start after 1 second delay
     timeoutIdRef.current = setTimeout(() => {
       if (stoppedRef.current) return;
 
       const targetEl = document.getElementById(targetId);
       if (!targetEl) return;
 
-      // Attach scroll-abort listeners once auto-scroll actually starts
-      attachListeners();
-
-      const startY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
+      const startY = window.scrollY;
       const targetRect = targetEl.getBoundingClientRect();
-      
-      // Calculate target scroll position to center the code box on the screen
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-      const offsetToCenter = Math.max(30, (viewportHeight - targetRect.height) / 2);
-      const targetY = Math.max(0, startY + targetRect.top - offsetToCenter);
+      // Target position: centering the box nicely with header room
+      const targetY = startY + targetRect.top - 80;
       const totalDistance = targetY - startY;
 
-      if (totalDistance <= 15) return;
+      if (totalDistance <= 0) return;
 
-      const durationMs = durationSec * 1000;
+      // Attach user abort listeners once the auto-scroll movement actually begins
+      attachListeners();
+      isScrollingStarted = true;
+
+      // Convert scrollSeconds to milliseconds (e.g. 40s = 40,000ms)
+      const durationMs = (Number(scrollSeconds) || 40) * 1000;
       let startTime = null;
 
       const step = (timestamp) => {
@@ -87,8 +78,7 @@ export default function AutoScroll({ scrollSeconds = 40, targetId = 'article-cod
         const elapsed = timestamp - startTime;
         const progress = Math.min(elapsed / durationMs, 1); // Linear easing
 
-        const currentScrollY = startY + (totalDistance * progress);
-        window.scrollTo(0, currentScrollY);
+        window.scrollTo(0, startY + (totalDistance * progress));
 
         if (progress < 1) {
           rafIdRef.current = requestAnimationFrame(step);
