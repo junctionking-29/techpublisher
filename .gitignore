@@ -13,6 +13,8 @@ out/
 build/
 dist/
 .swc/
+instrument_master.csv
+instrument_master_timestamp.txt
 
 # Production & Local Environment Variables
 # NEVER commit secret keys or environment configs
