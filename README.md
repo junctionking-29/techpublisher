@@ -143,3 +143,4 @@ Before going live, execute these 5 verification tests:
 | 3 | **Premature Finish Call (Early Bypass Attempt)** | Call `POST /api/redeem/start` via curl to get a token, then immediately send `POST /api/redeem/finish` with that token before countdown expires. | **Fails immediately with HTTP 425 (Too Early)**: `{"error":"Too early. Link unlocks in N seconds."}`. |
 | 4 | **Auto-Scroll Cancellation** | Open any article (`/articles/review-aura-one-minimalist-e-ink-tablet`). Wait 1 second for smooth auto-scroll to begin. Touch screen, move mouse wheel, or press a key. | Auto-scroll halts immediately and permanently for the rest of that page session. |
 | 5 | **Settings Propagation** | Log into `/admin`, navigate to **Settings**, change Default Countdown to `4` seconds and Auto-Scroll to `20` seconds, then click "Save Settings". | New article visits auto-scroll over 20s; codes without specific overrides now trigger a 4-second countdown. |
+# techpublisher
