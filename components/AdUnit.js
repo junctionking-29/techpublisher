@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect } from 'react';
+
 /**
  * AdUnit component
  * Renders advertisement slots only when NEXT_PUBLIC_ADS_ENABLED === 'true'.
@@ -6,6 +10,17 @@
  */
 export default function AdUnit({ slot = 'in-article-banner', format = 'auto' }) {
   const adsEnabled = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
+  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-XXXXXXXXXXXXXXXX';
+
+  useEffect(() => {
+    if (adsEnabled && typeof window !== 'undefined') {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        // Silently catch ad blocker or script execution prevention
+      }
+    }
+  }, [adsEnabled]);
 
   if (!adsEnabled) {
     return (
@@ -24,11 +39,11 @@ export default function AdUnit({ slot = 'in-article-banner', format = 'auto' }) 
     <aside className="ad-slot-wrapper" aria-label="Advertisement">
       <div className="ad-label">Advertisement</div>
       <div className="ad-placeholder-box" data-ad-format={format} data-ad-slot={slot}>
-        {/* Production AdSense snippet or ad exchange container */}
+        {/* Production Google AdSense container */}
         <ins
           className="adsbygoogle"
           style={{ display: 'block', width: '100%', minHeight: '100px' }}
-          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+          data-ad-client={adsenseClient}
           data-ad-slot={slot}
           data-ad-format={format}
           data-full-width-responsive="true"

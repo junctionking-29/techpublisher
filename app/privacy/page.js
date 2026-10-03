@@ -34,7 +34,10 @@ export default function PrivacyPage() {
 
         <h2>2. Cookies and Tracking Technologies</h2>
         <p>
-          We utilize essential technical session cookies necessary for authenticated administrative management. Third-party advertising partners and content delivery networks may set cookies to serve targeted advertisements based on prior visits, subject to your browser consent preferences.
+          We utilize technical session cookies necessary for authenticated administrative management. In addition, we use <strong>Google Analytics</strong> to measure aggregate visitor metrics, traffic patterns, and engagement velocity to continuously improve our journalism.
+        </p>
+        <p>
+          <strong>Google AdSense & Third-Party Advertising:</strong> Third-party vendors, including Google, use cookies to serve advertisements based on a user's prior visits to this website or other websites on the Internet. Google's use of advertising cookies enables it and its partners to serve ads to visitors based on their visit to our sites and/or other sites across the web. Users may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Google Ads Settings</a> or <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">www.aboutads.info</a>.
         </p>
 
         <h2>3. How We Use Information</h2>
