@@ -145,3 +145,4 @@ Before going live, execute these 5 verification tests:
 | 5 | **Settings Propagation** | Log into `/admin`, navigate to **Settings**, change Default Countdown to `4` seconds and Auto-Scroll to `20` seconds, then click "Save Settings". | New article visits auto-scroll over 20s; codes without specific overrides now trigger a 4-second countdown. |
 # techpublisher
 # techpublisher
+# techpublisher
