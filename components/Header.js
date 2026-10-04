@@ -14,6 +14,7 @@ export default function Header() {
           <Link href="/category/tech-news" className="nav-link">Tech News</Link>
           <Link href="/category/research-explainers" className="nav-link">Research</Link>
           <Link href="/about" className="nav-link">About</Link>
+          <Link href="/#redeem-code-box" className="nav-link" style={{ fontWeight: 700, color: '#dc2626' }}>Redeem Code</Link>
         </nav>
       </div>
     </header>

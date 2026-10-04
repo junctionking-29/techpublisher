@@ -49,7 +49,7 @@ export default async function HomePage() {
             </p>
 
             {/* Reusable Code Box */}
-            <CodeBox id="home-code-box" />
+            <CodeBox id="redeem-code-box" />
           </div>
         </div>
       </section>
